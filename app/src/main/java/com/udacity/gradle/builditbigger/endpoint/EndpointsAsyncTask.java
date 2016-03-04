@@ -43,7 +43,6 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
 
 
         try {
-//            return myApiService.sayHi(name).execute().getData();
             return myApiService.pullJoke().execute().getData();
         } catch (IOException e) {
             return e.getMessage();
@@ -52,6 +51,6 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+        super.onPostExecute(result);
     }
 }

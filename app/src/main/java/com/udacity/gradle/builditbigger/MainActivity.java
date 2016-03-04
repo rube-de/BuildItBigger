@@ -10,6 +10,8 @@ import android.view.View;
 import com.example.bdrf.displayjokelibrary.JokeActivity;
 import com.udacity.gradle.builditbigger.endpoint.EndpointsAsyncTask;
 
+import java.util.concurrent.ExecutionException;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -42,16 +44,16 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void tellJoke(View view){
+    public void tellJoke(View view) throws ExecutionException, InterruptedException {
 
 //        JokeLibrary jlib = new JokeLibrary();
 //        final String joke = jlib.getJoke();
-//        Intent intent = new Intent(this, JokeActivity.class);
-//        intent.putExtra(JokeActivity.JOKE_KEY, joke);
-//        startActivity(intent);
+        Intent intent = new Intent(this, JokeActivity.class);
 //        Toast.makeText(this, joke, Toast.LENGTH_SHORT).show();
         EndpointsAsyncTask asyncTask = new EndpointsAsyncTask();
-        asyncTask.execute(this);
+        final String joke = asyncTask.execute(this).get();
+        intent.putExtra(JokeActivity.JOKE_KEY, joke);
+        startActivity(intent);
     }
 
 
