@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * Created by bdrf on 04.03.2016.
  */
-class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
+public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
     private static MyApi myApiService = null;
     private Context context;
 
@@ -39,6 +39,7 @@ class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
 
             myApiService = builder.build();
         }
+        context = params[0];
 
 
         try {

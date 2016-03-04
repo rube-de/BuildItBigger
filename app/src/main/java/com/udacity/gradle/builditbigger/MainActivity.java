@@ -7,8 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.JokeLibrary;
 import com.example.bdrf.displayjokelibrary.JokeActivity;
+import com.udacity.gradle.builditbigger.endpoint.EndpointsAsyncTask;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -50,8 +50,8 @@ public class MainActivity extends ActionBarActivity {
 //        intent.putExtra(JokeActivity.JOKE_KEY, joke);
 //        startActivity(intent);
 //        Toast.makeText(this, joke, Toast.LENGTH_SHORT).show();
-
-
+        EndpointsAsyncTask asyncTask = new EndpointsAsyncTask();
+        asyncTask.execute(this);
     }
 
 
