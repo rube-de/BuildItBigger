@@ -16,12 +16,12 @@ import java.io.IOException;
 /**
  * Created by bdrf on 04.03.2016.
  */
-public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
+public class EndpointsAsyncTask extends AsyncTask<Void, Void, String> {
     private static MyApi myApiService = null;
     private Context context;
 
     @Override
-    protected String doInBackground(Context... params) {
+    protected String doInBackground(Void... params) {
         if(myApiService == null) {  // Only do this once
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -39,7 +39,6 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
 
             myApiService = builder.build();
         }
-        context = params[0];
 
 
         try {
@@ -48,6 +47,7 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
             return e.getMessage();
         }
     }
+
 
     @Override
     protected void onPostExecute(String result) {

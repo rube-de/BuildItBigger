@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity {
         Intent intent = new Intent(this, JokeActivity.class);
 //        Toast.makeText(this, joke, Toast.LENGTH_SHORT).show();
         EndpointsAsyncTask asyncTask = new EndpointsAsyncTask();
-        final String joke = asyncTask.execute(this).get();
+        final String joke = asyncTask.execute().get();
         intent.putExtra(JokeActivity.JOKE_KEY, joke);
         startActivity(intent);
     }
