@@ -17,7 +17,7 @@ import rx.functions.Func0;
 public class ObservablesFactory {
     private static MyApi myApiService = null;
 
-    public Observable<String> getJokeObservable(){
+    public Observable<String> getJokeObservable() {
         return Observable.defer(new Func0<Observable<String>>() {
             @Override
             public Observable<String> call() {

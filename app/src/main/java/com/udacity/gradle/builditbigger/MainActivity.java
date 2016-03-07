@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         //unsubscribe from joke observer if still persist
-        if(jokeSubscription != null && !jokeSubscription.isUnsubscribed()){
+        if (jokeSubscription != null && !jokeSubscription.isUnsubscribed()) {
             jokeSubscription.unsubscribe();
         }
     }
@@ -88,7 +88,7 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void onNext(String s) {
                         Log.e(TAG, "Observable onNext");
-                        if(s != null) {
+                        if (s != null) {
                             Intent intent = new Intent(MainActivity.this, JokeActivity.class);
                             intent.putExtra(JokeActivity.JOKE_KEY, s);
                             startActivity(intent);
