@@ -1,7 +1,4 @@
-package com.udacity.gradle.builditbigger.endpoint;
-
-import android.content.Context;
-import android.os.AsyncTask;
+package com.udacity.gradle.builditbigger;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -11,15 +8,29 @@ import com.google.builditbigger.backend.myApi.MyApi;
 
 import java.io.IOException;
 
-/**
- * Created by bdrf on 04.03.2016.
- */
-public class EndpointsAsyncTask extends AsyncTask<Void, Void, String> {
-    private static MyApi myApiService = null;
-    private Context context;
+import rx.Observable;
+import rx.functions.Func0;
 
-    @Override
-    protected String doInBackground(Void... params) {
+/**
+ * Created by bdrf on 07.03.2016.
+ */
+public class ObservablesFactory {
+    private static MyApi myApiService = null;
+
+    public Observable<String> getJokeObservable(){
+        return Observable.defer(new Func0<Observable<String>>() {
+            @Override
+            public Observable<String> call() {
+                try {
+                    return Observable.just(getJoke());
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+        });
+    }
+
+    private String getJoke() throws IOException {
         if (myApiService == null) {  // Only do this once
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -37,17 +48,8 @@ public class EndpointsAsyncTask extends AsyncTask<Void, Void, String> {
 
             myApiService = builder.build();
         }
-        try {
-            return myApiService.pullJoke().execute().getData();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
 
-    @Override
-    protected void onPostExecute(String result) {
-        super.onPostExecute(result);
+        return myApiService.pullJoke().execute().getData();
     }
 }

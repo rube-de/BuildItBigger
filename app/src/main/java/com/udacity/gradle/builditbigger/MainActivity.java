@@ -3,22 +3,33 @@ package com.udacity.gradle.builditbigger;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.example.bdrf.displayjokelibrary.JokeActivity;
-import com.udacity.gradle.builditbigger.endpoint.EndpointsAsyncTask;
+import com.google.builditbigger.backend.myApi.MyApi;
 
 import java.util.concurrent.ExecutionException;
 
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 
 public class MainActivity extends ActionBarActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static MyApi myApiService = null;
+    private Subscription jokeSubscription;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
     }
 
 
@@ -44,17 +55,48 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void tellJoke(View view) throws ExecutionException, InterruptedException {
-
-//        JokeLibrary jlib = new JokeLibrary();
-//        final String joke = jlib.getJoke();
-        Intent intent = new Intent(this, JokeActivity.class);
-//        Toast.makeText(this, joke, Toast.LENGTH_SHORT).show();
-        EndpointsAsyncTask asyncTask = new EndpointsAsyncTask();
-        final String joke = asyncTask.execute().get();
-        intent.putExtra(JokeActivity.JOKE_KEY, joke);
-        startActivity(intent);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //unsubscribe from joke observer if still persist
+        if(jokeSubscription != null && !jokeSubscription.isUnsubscribed()){
+            jokeSubscription.unsubscribe();
+        }
     }
 
+
+    //Handle Joke Button click:
+    //call Java Lib with async call via rx java observable
+    public void tellJoke(View view) throws ExecutionException, InterruptedException {
+        ObservablesFactory obsFactory = new ObservablesFactory();
+
+        jokeSubscription = obsFactory.getJokeObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.e(TAG, "Observable complete");
+                        jokeSubscription.unsubscribe();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Observable error: " + e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Log.e(TAG, "Observable onNext");
+                        if(s != null) {
+                            Intent intent = new Intent(MainActivity.this, JokeActivity.class);
+                            intent.putExtra(JokeActivity.JOKE_KEY, s);
+                            startActivity(intent);
+                        }
+
+                    }
+                });
+
+    }
 
 }
