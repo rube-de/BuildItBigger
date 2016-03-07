@@ -7,9 +7,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.example.bdrf.displayjokelibrary.JokeActivity;
-import com.google.builditbigger.backend.myApi.MyApi;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 
 import java.util.concurrent.ExecutionException;
 
@@ -21,14 +24,31 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static MyApi myApiService = null;
-    private Subscription jokeSubscription;
-
+    private InterstitialAd mInterstitialAd;
+    private Subscription mJokeSubscription;
+    private Intent mJokeIntent;
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        spinner=(ProgressBar)findViewById(R.id.progressBar);
+        spinner.setVisibility(View.GONE);
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                requestNewInterstitial();
+                createSub();
+            }
+        });
+
+        requestNewInterstitial();
 
     }
 
@@ -59,8 +79,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         //unsubscribe from joke observer if still persist
-        if (jokeSubscription != null && !jokeSubscription.isUnsubscribed()) {
-            jokeSubscription.unsubscribe();
+        if (mJokeSubscription != null && !mJokeSubscription.isUnsubscribed()) {
+            mJokeSubscription.unsubscribe();
         }
     }
 
@@ -68,16 +88,29 @@ public class MainActivity extends ActionBarActivity {
     //Handle Joke Button click:
     //call Java Lib with async call via rx java observable
     public void tellJoke(View view) throws ExecutionException, InterruptedException {
-        ObservablesFactory obsFactory = new ObservablesFactory();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                spinner.setVisibility(View.VISIBLE);
+            }
+        });
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            createSub();
+        }
+    }
 
-        jokeSubscription = obsFactory.getJokeObservable()
+    private void createSub() {
+        ObservablesFactory obsFactory = new ObservablesFactory();
+        mJokeSubscription = obsFactory.getJokeObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onCompleted() {
                         Log.e(TAG, "Observable complete");
-                        jokeSubscription.unsubscribe();
+                        mJokeSubscription.unsubscribe();
                     }
 
                     @Override
@@ -93,10 +126,16 @@ public class MainActivity extends ActionBarActivity {
                             intent.putExtra(JokeActivity.JOKE_KEY, s);
                             startActivity(intent);
                         }
-
                     }
                 });
+    }
 
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+                .build();
+
+        mInterstitialAd.loadAd(adRequest);
     }
 
 }

@@ -45,6 +45,11 @@ public class ObservablesFactory {
                         }
                     });
             // end options for devappserver
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             myApiService = builder.build();
         }
