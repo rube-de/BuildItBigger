@@ -40,3 +40,8 @@ appengine {
     getDiscoveryDocsOnBuild = true
   }
 }
+
+task stopBackend{
+    dependsOn "appengineStop"
+    mustRunAfter ":app:connectedAndroidTest"
+}

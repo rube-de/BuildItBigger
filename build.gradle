@@ -17,3 +17,16 @@ allprojects {
         jcenter()
     }
 }
+
+task udacityTest(dependsOn:[":backend:appengineRun", ":app:runAndroidTest", ":backend:stopBackend"]){
+    evaluationDependsOn ":backend"
+    project(":backend"){
+        appengine{
+            daemon true
+        }
+    }
+    doLast{
+        println " Job done"
+    }
+
+}
