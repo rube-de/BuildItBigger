@@ -28,5 +28,11 @@ task udacityTest(dependsOn:[":backend:appengineRun", ":app:runAndroidTest", ":ba
     doLast{
         println " Job done"
     }
+}
 
+task testLocalServer {
+    dependsOn ':backend:appengineRun'
+    mustRunAfter ':backend:appengineRun'
+    dependsOn ':app:connectedAndroidTest'
+    finalizedBy ':backend:appengineStop'
 }
